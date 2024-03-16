@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { PaperProvider } from 'react-native-paper';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,12 +48,25 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  const theme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: '#388E3C',
+      secondary: '#e7f2e2',
+    },
+  };
+
   return (
+    <PaperProvider theme={theme} >
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        {/* <Stack.Screen name="modal" options={{ presentation: 'modal' }} /> */}
+        {/* <Stack.Screen name="index" options={{ headerShown: false }} /> */}
+        <Stack.Screen name="FactPreview" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
+    </PaperProvider>
   );
 }

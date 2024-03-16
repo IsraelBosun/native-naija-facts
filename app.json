@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "facts-app",
-    "slug": "facts-app",
+    "name": "Naija Facts",
+    "slug": "Naija-Facts",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -22,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.israelbosun.NaijaFacts"
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +35,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b914c246-c789-47c1-b2bb-491e9336a97d"
+      }
     }
   }
 }
