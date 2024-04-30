@@ -7,6 +7,9 @@ import { useEffect } from 'react';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { PaperProvider } from 'react-native-paper';
+import { Provider } from 'react-redux';;
+import store from '../components/redux/store'
+
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -58,6 +61,7 @@ function RootLayoutNav() {
   };
 
   return (
+    <Provider store={store}>
     <PaperProvider theme={theme} >
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
@@ -68,5 +72,6 @@ function RootLayoutNav() {
       </Stack>
     </ThemeProvider>
     </PaperProvider>
+    </Provider>
   );
 }

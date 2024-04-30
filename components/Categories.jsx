@@ -15,8 +15,9 @@ import { Avatar, Button, Card, TouchableRipple, useTheme, ActivityIndicator  } f
 
 
 export default function Categories() {
-  const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true)
     const [categorize, setcategorize] = useState([]);
+
 
 
     const router = useRouter();
@@ -30,27 +31,22 @@ export default function Categories() {
       .finally(() => setLoading(false))
     }, []);
 
-    // if (loading) {
-    //   return (
-    //     <View className='flex-1 items-center absolute top-50% justify-center w-full'>
-    //       <ActivityIndicator animating={true} color={theme.colors.primary} size='large' />
-    //     </View>
-    //   );
-    // }
-
-
   return (
-    <View>
-      <FlatList
-      data={categorize}
-      numColumns={2}
-      keyExtractor={item=>item.id}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{paddingBottom: 300, paddingTop: 5, paddingHorizontal: 0 }}
-      columnWrapperStyle={{justifyContent: 'space-between'}}
-      renderItem={({ item, index}) => <CategoryCard  index={index} item={item} router = {router} navigation= {navigation} theme={theme}  />}
-      />
-    </View>
+    <>
+      { loading ? (<ActivityIndicator size={'large'} className='absolute top-[360%] left-[45%]' />) : (
+        <View>
+          <FlatList
+            data={categorize}
+            numColumns={2}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 300, paddingTop: 5, paddingHorizontal: 0 }}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            renderItem={({ item, index }) => <CategoryCard index={index} item={item} router={router} navigation={navigation} theme={theme} />}
+          />
+        </View>
+      )}
+    </>
   )
 }
 
