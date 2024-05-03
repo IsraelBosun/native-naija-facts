@@ -8,7 +8,8 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
-
+import store from '@/components/redux/store';
+import { Provider } from 'react-redux';
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 
 
@@ -17,6 +18,7 @@ export default function TabLayout() {
   const theme = useTheme()
 
   return (
+    <Provider store={store}>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: 'green',
@@ -67,5 +69,6 @@ export default function TabLayout() {
         }}    
       />
     </Tabs>
+    </Provider>
   );
 }

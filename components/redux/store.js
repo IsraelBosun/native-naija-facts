@@ -1,5 +1,5 @@
 // store.js
-import { createStore, combineReducers } from 'redux';
+import { legacy_createStore as createStore, combineReducers } from 'redux';
 import reducer from './reducers'; // Assuming your reducer file is named reducers.js
 
 // Combine reducers if you have multiple reducers

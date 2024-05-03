@@ -9,27 +9,43 @@ import CustomModal from '../../components/Modal'
 import { getFacts, getOnlyFacts } from '../../api'
 import { urlFor } from '../../sanity';
 import { useEffect } from 'react'
-import { Modal, Portal, PaperProvider, Appbar, useTheme, Avatar, Card, Icon, ActivityIndicator } from 'react-native-paper';
+import { Modal, Portal, PaperProvider, Appbar, useTheme, Avatar, Card, Icon, ActivityIndicator, IconButton } from 'react-native-paper';
 import ExternalLink from '../../components/Linking'
-import { addLikedFact } from '../../components/redux/actions'
+import { addLikedFact, removeLikedFact } from '../../components/redux/actions'
 import { connect } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 
 
 
 
 
-function Shuffled({addLikedFact}) {
+
+function Shuffled({}) {
   const router = useRouter()
   const [isModalVisible, setModalVisible] = useState(false);
   const [gettingFact, setGettingFact] = useState([]);
   const [loading, setLoading] = useState(true)
   const [toggledHeart, setToggledHeart] = useState({});
 
-
+  const likedFacts = useSelector(state => state.likedFacts);
+  console.log('Likedfacttss', likedFacts)
+  const dispatch = useDispatch();
   const theme = useTheme();
 
+  const toggleHeart = (id) => {
+    console.log('clicked')
+    setToggledHeart(prevState => ({
+      ...prevState,
+      [id]: !prevState[id], 
+    }));
+  };
+
   const handleLike = (fact) => {
-    addLikedFact(fact);
+    if (toggledHeart[fact.id]) {
+      dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+    } else {
+      dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+    }
     toggleHeart(fact.id);
   };
 
@@ -40,13 +56,6 @@ function Shuffled({addLikedFact}) {
     .finally(() => setLoading(false))
   }, []);
 
-  const toggleHeart = (id) => {
-    console.log('clicked')
-    setToggledHeart(prevState => ({
-      ...prevState,
-      [id]: !prevState[id], 
-    }));
-  };
 
   return (
     <>
@@ -67,9 +76,11 @@ function Shuffled({addLikedFact}) {
                   <Card key={preview.id} className='pb-8' style={{ backgroundColor: theme.colors.secondary }}>
                     <Card.Cover source={{ uri: urlFor(preview.image).url() }} />
                     <View className='bo flex-1 '>
-                      <Card.Title className='font-bold' title="Category" />
+                      <Card.Title className='font-bold' title={preview.title} />
                       <View className='flex-row items-center absolute left-60 top-3'>
-                        <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'green' : 'red'} onPress={() => handleLike(preview)} />
+                        <TouchableOpacity onPress={() => handleLike(preview)}>
+                        <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'red' : 'green'}  />
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <Card.Content>
@@ -86,16 +97,18 @@ function Shuffled({addLikedFact}) {
   )
 }
 
-const mapStateToProps = (state) => ({
-  likedFacts: state.likedFacts,
-});
+export default Shuffled;
 
-const mapDispatchToProps = {
-  addLikedFact,
-};
+// const mapStateToProps = (state) => ({
+//   likedFacts: state.likedFacts,
+// });
+
+// const mapDispatchToProps = {
+//   addLikedFact,
+// };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Shuffled);
+// export default connect(mapStateToProps, mapDispatchToProps)(Shuffled);
 
 
 
@@ -214,3 +227,4 @@ export default connect(mapStateToProps, mapDispatchToProps)(Shuffled);
 //     <ExternalLink className='' url={preview.url2} title={preview.url2} />
 //   </Modal> */}
 // </Portal>
+

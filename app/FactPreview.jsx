@@ -14,6 +14,9 @@ import { Avatar, Button, Card, Text, Icon, MD3Colors } from 'react-native-paper'
 import { useTheme } from 'react-native-paper';
 import { Modal, Portal, PaperProvider, Appbar,  } from 'react-native-paper';
 import ExternalLink from '../components/Linking'
+import { useSelector, useDispatch } from 'react-redux';
+
+
 
 
 
