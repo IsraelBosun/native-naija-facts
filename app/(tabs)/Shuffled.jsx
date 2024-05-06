@@ -1,4 +1,4 @@
-import { View, Text, Share, ScrollView, Image, Alert, TouchableOpacity } from 'react-native'
+import { View, Text, Share, ScrollView, Image, Alert, Button, TouchableOpacity, Linking } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -9,7 +9,7 @@ import CustomModal from '../../components/Modal'
 import { getFacts, getOnlyFacts } from '../../api'
 import { urlFor } from '../../sanity';
 import { useEffect } from 'react'
-import { Modal, Portal, PaperProvider, Appbar, useTheme, Avatar, Card, Icon, ActivityIndicator, IconButton } from 'react-native-paper';
+import { Modal, Portal, PaperProvider, Appbar, useTheme, Divider, Avatar, Card, Icon, ActivityIndicator, IconButton, Dialog } from 'react-native-paper';
 import ExternalLink from '../../components/Linking'
 import { addLikedFact, removeLikedFact } from '../../components/redux/actions'
 import { connect } from 'react-redux'
@@ -26,6 +26,8 @@ function Shuffled({}) {
   const [gettingFact, setGettingFact] = useState([]);
   const [loading, setLoading] = useState(true)
   const [toggledHeart, setToggledHeart] = useState({});
+  const [visible, setVisible] = React.useState(false);
+
 
   const likedFacts = useSelector(state => state.likedFacts);
   console.log('Likedfacttss', likedFacts)
@@ -56,6 +58,13 @@ function Shuffled({}) {
     .finally(() => setLoading(false))
   }, []);
 
+  const hideDialog = () => setVisible(false);
+  const showDialog = () => setVisible(true);
+
+  const handleLinkPress = (url) => {
+    Linking.openURL(url);
+  };
+
 
   return (
     <>
@@ -71,23 +80,46 @@ function Shuffled({}) {
                 contentContainerStyle={{ paddingVertical: 30 }}
                 showsVerticalScrollIndicator={false}
                 className='flex gap-6 mb-20'>
-
                 {gettingFact.map((preview) => (
-                  <Card key={preview.id} className='pb-8' style={{ backgroundColor: theme.colors.secondary }}>
+                  <Card key={preview.id} className='pb-4' style={{ backgroundColor: theme.colors.secondary }}>
                     <Card.Cover source={{ uri: urlFor(preview.image).url() }} />
-                    <View className='bo flex-1 '>
-                      <Card.Title className='font-bold' title={preview.title} />
-                      <View className='flex-row items-center absolute left-60 top-3'>
+                    <View className='flex-row items-center justify-between px-3 '>
+                      <Text className=' text-[20px] mt-2 leading-10 font-medium'>{preview.title}</Text>
+                      <View className='flex-row gap-1 items-center'>
                         <TouchableOpacity onPress={() => handleLike(preview)}>
-                        <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'red' : 'green'}  />
+                        <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'red' : '#16A34A'}  />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={showDialog} >
+                        <Icon source="information" size={29} color={'#16A34A'} />
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <Card.Content>
-                      <Text variant='bodyMedium'>{preview.shortDetail}</Text>
-                    </Card.Content>
+                    <View className='px-3 mt-2'>
+                      <Text className='leading-5 text-neutral-700' variant='bodyMedium'>{preview.shortDetail}</Text>
+                    </View>
+                    <View className='flex-row items-center justify-end gap-3 px-3 mt-2'>
+                      <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3'>
+                        <Text className='text-md text-green-600 font-semibold'>Share</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
+                        <Text className='text-md text-white font-semibold'>Read more</Text>
+                      </TouchableOpacity>
+                    </View>
                   </Card>
                 ))}
+                <Portal>
+                  <Dialog visible={visible} onDismiss={hideDialog}>
+                    <Dialog.Content className='flex gap-3'>
+                      <TouchableOpacity onPress={() => handleLinkPress(preview.url1)}>
+                        <Text >This is the first link</Text>
+                      </TouchableOpacity>
+                      <Divider />
+                      <TouchableOpacity onPress={() => handleLinkPress(preview.url2)}>
+                        <Text >This is the second link</Text>
+                      </TouchableOpacity>
+                    </Dialog.Content>
+                  </Dialog>
+                </Portal>
               </ScrollView>
             </View>
           </PaperProvider>
@@ -228,3 +260,15 @@ export default Shuffled;
 //   </Modal> */}
 // </Portal>
 
+// {/* <View className=' flex-1 '>
+// {/* <Card.Title textStyle={{ fontSize: 20, fontWeight: 'bold' }}  title={preview.title} /> */}
+// <Text>{preview.title}</Text>
+// <View className='flex-row gap-1 items-center absolute left-60 top-3'>
+//   <TouchableOpacity onPress={() => handleLike(preview)}>
+//   <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'red' : 'green'}  />
+//   </TouchableOpacity>
+//   <TouchableOpacity onPress={showDialog} >
+//   <Icon source="information" size={29} color={'green'} />
+//   </TouchableOpacity>
+// </View>
+// </View> */}

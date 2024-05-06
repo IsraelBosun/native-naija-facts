@@ -40,7 +40,7 @@
 // export default reducer;
 
 
-import { ADD_LIKED_FACT, REMOVE_LIKED_FACT } from './actions';
+import { ADD_LIKED_FACT, REMOVE_LIKED_FACT, LOAD_LIKED_FACT } from './actions';
 
 const initialState = {
   likedFacts: [],
@@ -57,6 +57,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         likedFacts: state.likedFacts.filter(fact => fact.id !== action.payload),
+      };
+    case LOAD_LIKED_FACT:
+      return {
+        ...state,
+        likedFacts: action.payload
       };
     default:
       return state;

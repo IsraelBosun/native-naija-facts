@@ -10,31 +10,39 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
 import store from '@/components/redux/store';
 import { Provider } from 'react-redux';
+import Icon from 'react-native-vector-icons/Feather';
+import { CommonActions } from '@react-navigation/native';
+import index from './index';
+import Settings from './Settings'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, BottomNavigation } from 'react-native-paper';
+
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 
+const Tab = createBottomTabNavigator();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const theme = useTheme()
-
+  const theme = useTheme();
+  
   return (
-    <Provider store={store}>
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: 'green',
+        tabBarActiveTintColor: '#16A34A',
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: false,
-        tabBarStyle: {height: 80, padding: 10, backgroundColor: theme.colors.secondary },
+        tabBarStyle: {height: 70, padding: 10, backgroundColor: theme.colors.secondary },
         tabBarBadgeStyle: {backgroundColor: 'red', fontSize: 30}
 
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Category',
-          tabBarIcon: ({ color }) => <MaterialIcons name="category" size={24} color={color}  />,
+          title: 'Home',
+          tabBarIcon: ({ color }) => <Icon name="home" size={26 } color={'black'}  />,
           tabBarItemStyle: {height: 50,  },
+          tabBarActiveTintColor: '#16A34A',
 
         }}
       />
@@ -42,26 +50,26 @@ export default function TabLayout() {
         name="Shuffled"
         options={{
           title: 'Shuffled',
-          tabBarIcon: ({ color }) => <FontAwesome name="random" size={24} color={color}  />,
+          tabBarIcon: ({ color }) => <Icon name="shuffle" size={26 } color={'black'}  />,
           tabBarItemStyle: {height: 50, },
-
+          tabBarActiveTintColor: '#16A34A',
         }}
       />
       <Tabs.Screen
         name="Favourite"
         options={{
           title: 'Favourite',
-          tabBarIcon: ({ color }) => <AntDesign name="heart" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <Icon name="heart" size={26 } color={'black'} />,
           tabBarItemStyle: {height: 50, },
-
+          tabBarActiveTintColor: '#16A34A',
         }}
       />
       <Tabs.Screen
         name="Settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <AntDesign name="setting" size={24} color={color}  />,
-          // tabBarActiveTintColor: 'red',
+          tabBarIcon: ({  }) => <AntDesign name="setting" size={26 } color={'black'}  />,
+          tabBarActiveTintColor: '#16A34A',
           tabBarItemStyle: {height: 50, borderRadius: 30,  },
           // tabBarInactiveTintColor: 'pink',
           // tabBarIconStyle: {color: 'red', backgroundColor: 'green', marginTop: 0, borderRadius: 30, borderRightColor: 'red'},
@@ -69,6 +77,9 @@ export default function TabLayout() {
         }}    
       />
     </Tabs>
-    </Provider>
   );
 }
+
+
+
+

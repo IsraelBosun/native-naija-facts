@@ -20,14 +20,16 @@ export default function index() {
         {/* <Appbar.Action icon="calendar" onPress={() => { }} />
         <Appbar.Action icon="magnify" onPress={() => { }} /> */}
       </Appbar.Header>
-      {/* <View className='mt-3  border p-2 flex-row items-center gap-x-2 rounded-xl bg-neutral-200'>
+      <View className=' mb-2 shadow-md'>
+      <View className='mt-3  mx-3 mr-3 w-[90%] border border-green-600 relative left-7 p-1 flex-row items-center gap-x-2 rounded-2xl bg-neutral-200 '>
         <TouchableOpacity>
-          <Icon name="search" size={25} color="gray" />
+          <Icon name="search" size={20} color="#16A34A" />
         </TouchableOpacity>
         <TextInput placeholder='Search Categories' className='w-4/5 text-md ' />
-      </View> */}
+      </View>
+      </View>
       <Categories />
-    </View>
+    </View> 
   )
 }
 {/* <ActivityIndicator animating={true} color={MD2Colors.red800} /> */}

@@ -1,4 +1,4 @@
-import { View, Share, ScrollView, Image, Alert, TouchableOpacity, Linking } from 'react-native'
+import { View, Text, Share, ScrollView, Image, Alert, TouchableOpacity, Linking } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -6,15 +6,15 @@ import { useRoute } from '@react-navigation/native'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 // import Icon from 'react-native-vector-icons/Octicons';
 import CustomModal from '../components/Modal'
-import { getFacts } from '../api'
+import { getFacts, getOnlyFacts } from '../api'
 import { urlFor } from '../sanity';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import { useEffect } from 'react'
-import { Avatar, Button, Card, Text, Icon, MD3Colors } from 'react-native-paper';
-import { useTheme } from 'react-native-paper';
-import { Modal, Portal, PaperProvider, Appbar,  } from 'react-native-paper';
+import { Modal, Portal, PaperProvider, Appbar, Dialog, useTheme, Avatar, Card, Icon, ActivityIndicator, IconButton } from 'react-native-paper';
 import ExternalLink from '../components/Linking'
 import { useSelector, useDispatch } from 'react-redux';
+import { addLikedFact, removeLikedFact } from '.././components/redux/actions'
+
 
 
 
@@ -25,32 +25,17 @@ import { useSelector, useDispatch } from 'react-redux';
 
 export default function FactPreview({ route }) {
   const router = useRouter()
-  const [likedFacts, setLikedFacts] = useState([])
+  const [gettingFact, setGettingFact] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [toggledHeart, setToggledHeart] = useState({});
   const [visible, setVisible] = React.useState(false);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-  const containerStyle = { backgroundColor: 'white', padding: 30, borderRadius: 10, margin: 30, height: 150 };
-
-
-  const theme = useTheme();
-
-  const handleLikePress = (preview) => {
-    // Check if the fact is already liked
-    const isLiked = likedFacts.some((fact) => fact.id === preview.id);
-
-    if (!isLiked) {
-      // Add the liked fact to the state
-      setLikedFacts([...likedFacts, preview]);
-    } else {
-      // Remove the fact from the liked facts
-      const updatedLikedFacts = likedFacts.filter((fact) => fact.id !== preview.id);
-      setLikedFacts(updatedLikedFacts);
-    }
-  };
 
   const { params: item } = useRoute()
   console.log(item, 'itemmmm')
+
   const onShare = async (preview) => {
     try {
       const imageUrl = preview.image ? urlFor(preview.image).url() : null;
@@ -79,31 +64,58 @@ export default function FactPreview({ route }) {
     }
   };
 
-  // const LeftContent = props => <TouchableOpacity><Avatar.Icon {...props} icon="folder" /></TouchableOpacity> 
 
-  const LeftContent = props => (
-    <View className='flex-row mx-5 gap-3'>
-      <TouchableOpacity>
-        <Icon {...props} source="heart" size={29} color={theme.colors.primary} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={showModal}>
-        <Icon {...props} source="information-outline" size={29} color={theme.colors.primary} />
-      </TouchableOpacity>
-      <TouchableOpacity >
-        <Icon {...props} source="share-variant-outline" size={29} color={theme.colors.primary} />
-      </TouchableOpacity>
-    </View>
-  );
+  const hideDialog = () => setVisible(false);
+  const showDialog = () => setVisible(true);
 
-  // onPress={() => onShare(preview)}
+  const likedFacts = useSelector(state => state.likedFacts);
+  console.log('Likedfacttss', likedFacts)
+  const dispatch = useDispatch();
+  const theme = useTheme();
+
+  const toggleHeart = (id) => {
+    console.log('clicked')
+    setToggledHeart(prevState => ({
+      ...prevState,
+      [id]: !prevState[id], 
+    }));
+  };
+
+  const handleLike = (fact) => {
+    if (toggledHeart[fact.id]) {
+      dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+    } else {
+      dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+    }
+    toggleHeart(fact.id);
+  };
+
+  // const handleLike = (fact) => {
+  //   if (toggledHeart[fact.id]) {
+  //     if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
+  //       Alert.alert("Fact already added to favorites.");
+  //     } else {
+  //       dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+  //     }
+  //     toggleHeart(fact.id);
+  //   } else {
+  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+  //     toggleHeart(fact.id);
+  //   }
+  // };
+  
+  useEffect(() => {
+    getOnlyFacts().then(data => {
+      setGettingFact(data)
+    })
+    .finally(() => setLoading(false))
+  }, []);
 
   return (
     <PaperProvider className='flex-1 bg-white'>
         <Appbar.Header style={{ backgroundColor: theme.colors.secondary }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content style={{ fontWeight: 'bold' }} title={item.name}/>
-        {/* <Appbar.Action icon="calendar" onPress={() => { }} />
-        <Appbar.Action icon="magnify" onPress={() => { }} /> */}
       </Appbar.Header>
       <View className='mx-4 mt-2 '>
         <ScrollView
@@ -113,20 +125,31 @@ export default function FactPreview({ route }) {
 
 
           {item.category.map((preview) => (
-            <Card className='pb-8' style={{ backgroundColor: theme.colors.secondary }}>
-              <Card.Cover source={{ uri: urlFor(preview.image).url() }} />
-              {/* <View className='flex-row'> */}
-              <Card.Title  className='font-bold' title={item.name} right={LeftContent} />
-              <Card.Content >
-                <Text variant='bodyMedium' className=''>{preview.shortDetail}</Text>
-              </Card.Content>
-                <Portal>
-                  <Modal className='' visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-                    <ExternalLink url={preview.url1} title={preview.url1} />
-                    <ExternalLink className='' url={preview.url2} title={preview.url2} />
-                  </Modal>
-                </Portal>
-            </Card>
+                  <Card key={preview.id} className='pb-4' style={{ backgroundColor: theme.colors.secondary }}>
+                  <Card.Cover source={{ uri: urlFor(preview.image).url() }} />
+                  <View className='flex-row items-center justify-between px-3 '>
+                    <Text className=' text-[20px] mt-2 leading-10 font-medium'>{preview.title}</Text>
+                    <View className='flex-row gap-1 items-center'>
+                      <TouchableOpacity onPress={() => handleLike(preview)}>
+                      <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'red' : '#16A34A'}  />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={showDialog} >
+                      <Icon source="information" size={29} color={'#16A34A'} />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <View className='px-3 mt-2'>
+                    <Text className='leading-5 text-neutral-700' variant='bodyMedium'>{preview.shortDetail}</Text>
+                  </View>
+                  <View className='flex-row items-center justify-end gap-3 px-3 mt-2'>
+                    <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3'>
+                      <Text className='text-md text-green-600 font-semibold'>Share</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
+                      <Text className='text-md text-white font-semibold'>Read more</Text>
+                    </TouchableOpacity>
+                  </View>
+                </Card>
           ))}
         </ScrollView>
       </View>
@@ -135,7 +158,20 @@ export default function FactPreview({ route }) {
   )
 }
 
-
+            // <Card className='pb-8' style={{ backgroundColor: theme.colors.secondary }}>
+            //   <Card.Cover source={{ uri: urlFor(preview.image).url() }} />
+            //   {/* <View className='flex-row'> */}
+            //   <Card.Title  className='font-bold' title={item.name} right={LeftContent} />
+            //   <Card.Content >
+            //     <Text variant='bodyMedium' className=''>{preview.shortDetail}</Text>
+            //   </Card.Content>
+            //     <Portal>
+            //       <Modal className='' visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
+            //         <ExternalLink url={preview.url1} title={preview.url1} />
+            //         <ExternalLink className='' url={preview.url2} title={preview.url2} />
+            //       </Modal>
+            //     </Portal>
+            // </Card>
 
 
 {/* <View className='bg-green-500 h-[80px] rounded-b-2xl z-10 '>

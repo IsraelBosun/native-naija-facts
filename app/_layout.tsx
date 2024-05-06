@@ -61,6 +61,7 @@ function RootLayoutNav() {
   };
 
   return (
+    <Provider store={store}>
     <PaperProvider theme={theme} >
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
@@ -71,5 +72,7 @@ function RootLayoutNav() {
       </Stack>
     </ThemeProvider>
     </PaperProvider>
+
+    </Provider>
   );
 }

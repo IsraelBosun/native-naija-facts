@@ -40,7 +40,7 @@ export default function Categories() {
             numColumns={2}
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 300, paddingTop: 5, paddingHorizontal: 0 }}
+            contentContainerStyle={{ paddingBottom: 400, paddingTop: 5, paddingHorizontal: 0 }}
             columnWrapperStyle={{ justifyContent: 'space-between' }}
             renderItem={({ item, index }) => <CategoryCard index={index} item={item} router={router} navigation={navigation} theme={theme} />}
           />
@@ -54,16 +54,16 @@ const CategoryCard = ({item, index, router, navigation, theme}) => {
   // console.log(typeof item.facts)
   // console.log(item, 'preview')
     return (
-      <View className='mx-2' >
-        <Card className=' mt-4 w-[160px]' style={{ backgroundColor: theme.colors.primary }} >
-          <TouchableOpacity onPress={() => navigation.push('FactPreview', item,)} >
-            <Card.Cover className='h-[150px]' resizeMethod='auto' source={{ uri: urlFor(item.image).url() }} />
-          </TouchableOpacity>
+      <View className='mx-2 ' >
+        <TouchableOpacity className=' mt-4 w-[160px] rounded-sm ' onPress={() => navigation.push('FactPreview', item,)} >
+          <View className=''  >
+            <Image className='h-[150px] ' resizeMethod='auto' source={{ uri: urlFor(item.image).url() }} />
+          </View >
           {/* <Card.Title title = "Category" subtitle='card subtitle'  /> */}
-          <Card.Content className = ''>
-            <Text className='text-center mt-1 text-white font-semibold'>{item.name}</Text>
-          </Card.Content>
-        </Card>
+          <View className = 'h-10 rounded-b-md flex items-center justify-center' style={{ backgroundColor: theme.colors.primary }}>
+            <Text className=' mt-1 text-white font-semibold text-md'>{item.name}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
 )
 }
