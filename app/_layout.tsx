@@ -56,10 +56,10 @@ function RootLayoutNav() {
     colors: {
       ...DefaultTheme.colors,
       primary: '#388E3C',
-      secondary: '#e7f2e2',
+      secondary: '#c1d6bb',
     },
   };
-
+  // #e7f2e2
   return (
     <Provider store={store}>
     <PaperProvider theme={theme} >

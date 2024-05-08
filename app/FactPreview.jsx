@@ -13,7 +13,7 @@ import { useEffect } from 'react'
 import { Modal, Portal, PaperProvider, Appbar, Dialog, useTheme, Avatar, Card, Icon, ActivityIndicator, IconButton } from 'react-native-paper';
 import ExternalLink from '../components/Linking'
 import { useSelector, useDispatch } from 'react-redux';
-import { addLikedFact, removeLikedFact } from '.././components/redux/actions'
+import { addLikedFact, removeLikedFact, toggleLikedFact } from '.././components/redux/actions'
 
 
 
@@ -34,7 +34,7 @@ export default function FactPreview({ route }) {
   const hideModal = () => setVisible(false);
 
   const { params: item } = useRoute()
-  console.log(item, 'itemmmm')
+  // console.log(Li, 'itemmmm')
 
   const onShare = async (preview) => {
     try {
@@ -68,26 +68,38 @@ export default function FactPreview({ route }) {
   const hideDialog = () => setVisible(false);
   const showDialog = () => setVisible(true);
 
-  const likedFacts = useSelector(state => state.likedFacts);
-  console.log('Likedfacttss', likedFacts)
+  const likedFacts = useSelector(state => state.fact.likedFacts);
+  console.log('FactPreview', likedFacts, 'FactPreview')
   const dispatch = useDispatch();
   const theme = useTheme();
 
   const toggleHeart = (id) => {
-    console.log('clicked')
     setToggledHeart(prevState => ({
       ...prevState,
       [id]: !prevState[id], 
     }));
   };
 
+  // const handleLike = (fact) => {
+  //   if (toggledHeart[fact.id]) {
+  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+  //     dispatch(toggleLikedFact(fact.id));
+  //   } else {
+  //     dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+  //   }
+  //   toggleHeart(fact.id);
+  // };
+
   const handleLike = (fact) => {
-    if (toggledHeart[fact.id]) {
-      dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+    if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
+      // If the fact is already liked, show an alert
+      Alert.alert('Already Liked', 'This fact is already liked.');
     } else {
-      dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+      // If the fact is not already liked, dispatch the action to add it to the liked facts
+      dispatch(addLikedFact(fact));
+      dispatch(toggleLikedFact(fact.id));
+      toggleHeart(fact.id);
     }
-    toggleHeart(fact.id);
   };
 
   // const handleLike = (fact) => {

@@ -1,4 +1,4 @@
-import { View, Text, Share, ScrollView, Image, Alert, Button, TouchableOpacity, Linking } from 'react-native'
+import { View, Text, Share, ScrollView, Pressable, Image, Alert, Button, TouchableOpacity, Linking } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -11,9 +11,11 @@ import { urlFor } from '../../sanity';
 import { useEffect } from 'react'
 import { Modal, Portal, PaperProvider, Appbar, useTheme, Divider, Avatar, Card, Icon, ActivityIndicator, IconButton, Dialog } from 'react-native-paper';
 import ExternalLink from '../../components/Linking'
-import { addLikedFact, removeLikedFact } from '../../components/redux/actions'
+import { addLikedFact, removeLikedFact, toggleLikedFact, loadLikedFacts } from '../../components/redux/actions'
 import { connect } from 'react-redux'
 import { useSelector, useDispatch } from 'react-redux';
+import { ALERT_TYPE, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
+
 
 
 
@@ -29,27 +31,56 @@ function Shuffled({}) {
   const [visible, setVisible] = React.useState(false);
 
 
-  const likedFacts = useSelector(state => state.likedFacts);
-  console.log('Likedfacttss', likedFacts)
+  const likedFacts = useSelector(state => state.fact.likedFacts);
+  console.log('Shuffled', likedFacts.length, 'Shuffled')
   const dispatch = useDispatch();
   const theme = useTheme();
 
+
   const toggleHeart = (id) => {
-    console.log('clicked')
     setToggledHeart(prevState => ({
       ...prevState,
       [id]: !prevState[id], 
     }));
   };
 
+
+
+
+
+  // const handleLike = (fact) => {
+  //   if (toggledHeart[fact.id]) {
+  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+  //   } else {
+  //     dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+  //   }
+  //   toggleHeart(fact.id);
+  // };
+  
   const handleLike = (fact) => {
-    if (toggledHeart[fact.id]) {
+    if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
+      // If the fact is already liked, remove it from likedFacts
       dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        textBody: 'Removed from favorites',
+        style: { backgroundColor: 'rgba(0, 10, 20, 0.6)', padding: 15 } 
+      });
     } else {
+      // If the fact is not already liked, add it to likedFacts
       dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+      // dispatch(toggleLikedFact(fact.id)); // Toggle liked status
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        textBody: 'Added to favorites',
+        style: { backgroundColor: 'rgba(0, 20, 10, 0.6)', padding: 15 } 
+      });
     }
+    // Always toggle the heart icon after handling like
     toggleHeart(fact.id);
   };
+
+
 
   useEffect(() => {
     getOnlyFacts().then(data => {
@@ -65,13 +96,30 @@ function Shuffled({}) {
     Linking.openURL(url);
   };
 
+  const onShare = async (preview) => {
+    try {
+      const result = await Share.share({
+        message: preview.shortDetail,
+        url: urlFor(preview.image).url(),
+      });
+
+      if (result.action === Share.sharedAction) {
+        // Add any desired logic if the share was successful
+      } else if (result.action === Share.dismissedAction) {
+        // Add any desired logic if the share was dismissed
+      }
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
 
   return (
-    <>
+    <AlertNotificationRoot>
       {
         loading ? <ActivityIndicator className='flex items-center flex-1' animating={true} size={'large'} /> : (
           <PaperProvider className='flex-1 bg-white'>
-            <Appbar.Header style={{ backgroundColor: theme.colors.secondary }}>
+            <Appbar.Header className='z-10' style={{ backgroundColor: theme.colors.secondary }}>
               <Appbar.BackAction onPress={() => { router.back() }} />
               <Appbar.Content title="Shuffled Facts" />
             </Appbar.Header>
@@ -98,7 +146,7 @@ function Shuffled({}) {
                       <Text className='leading-5 text-neutral-700' variant='bodyMedium'>{preview.shortDetail}</Text>
                     </View>
                     <View className='flex-row items-center justify-end gap-3 px-3 mt-2'>
-                      <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3'>
+                      <TouchableOpacity onPress={() => onShare(preview)} className='rounded-3xl border border-green-600 px-5 py-3'>
                         <Text className='text-md text-green-600 font-semibold'>Share</Text>
                       </TouchableOpacity>
                       <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
@@ -125,7 +173,7 @@ function Shuffled({}) {
           </PaperProvider>
         )
       }
-    </>
+    </AlertNotificationRoot>
   )
 }
 
@@ -139,9 +187,32 @@ export default Shuffled;
 //   addLikedFact,
 // };
 
+  // const handleLike = (fact) => {
+  //   if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
+  //     // If the fact is already liked, show an alert
+  //     Toast.show({
+  //       type: ALERT_TYPE.WARNING,
+  //       // title: 'Success',
+  //       textBody: 'Already added to favorites',
+  //       style: { backgroundColor: 'rgba(10,20,0,0.6)', padding: 15 } 
+  //     })    } else {
+  //     // If the fact is not already liked, dispatch the action to add it to the liked facts
+  //     dispatch(addLikedFact(fact));
+  //     dispatch(toggleLikedFact(fact.id));
+  //     toggleHeart(fact.id);
+  //   }
+  // };
 
 // export default connect(mapStateToProps, mapDispatchToProps)(Shuffled);
 
+  // const handleLike = (fact) => {
+  //   if (toggledHeart[fact.id]) {
+  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+  //   } else {
+  //     dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+  //   }
+  //   toggleHeart(fact.id);
+  // };
 
 
 // return (

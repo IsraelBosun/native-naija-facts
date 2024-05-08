@@ -14,11 +14,7 @@ import { addLikedFact, removeLikedFact } from '../../components/redux/actions'
 function Favourite({ }) {
   // const likedFacts = useSelector((state) => state.likedFacts);
   const likedFacts = useSelector((state) => state.fact.likedFacts); 
-  console.log('Dark facts:', likedFacts); // Log the likedFacts received from Redux
 
-  // if (!likedFacts || likedFacts.length === 0) {
-  //   return <Text className=''>No liked facts yet!</Text>;
-  // }
 
 
   const router = useRouter()
@@ -29,33 +25,12 @@ function Favourite({ }) {
   const [visible, setVisible] = React.useState(false);
 
 
-  console.log('Likedfacttss', likedFacts)
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const toggleHeart = (id) => {
-    console.log('clicked')
-    setToggledHeart(prevState => ({
-      ...prevState,
-      [id]: !prevState[id], 
-    }));
-  };
-
   const handleLike = (fact) => {
-    if (toggledHeart[fact.id]) {
       dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
-    } else {
-      dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
-    }
-    toggleHeart(fact.id);
   };
-
-  // useEffect(() => {
-  //   getOnlyFacts().then(data => {
-  //     setGettingFact(data)
-  //   })
-  //   .finally(() => setLoading(false))
-  // }, []);
 
   const hideDialog = () => setVisible(false);
   const showDialog = () => setVisible(true);
@@ -67,7 +42,7 @@ function Favourite({ }) {
 
   return (
     <View>
-      <Appbar.Header style={{ backgroundColor: theme.colors.secondary }}>
+      <Appbar.Header className='z-10' style={{ backgroundColor: theme.colors.secondary }}>
         <Appbar.BackAction onPress={() => { router.back() }} />
         <Appbar.Content title="Favorites" />
       </Appbar.Header>
@@ -78,7 +53,7 @@ function Favourite({ }) {
       </View>
     ) : (
       <ScrollView
-        contentContainerStyle={{ paddingVertical: 80 }}
+        contentContainerStyle={{ paddingVertical: 20, paddingBottom: 270, }}
         showsVerticalScrollIndicator={false}
         className='flex gap-6'>
         {likedFacts.map((preview) => (
@@ -88,7 +63,7 @@ function Favourite({ }) {
                     <Text className=' text-[20px] mt-2 leading-10 font-medium'>{preview.title}</Text>
                     <View className='flex-row gap-1 items-center'>
                       <TouchableOpacity onPress={() => handleLike(preview)}>
-                      <Icon source="heart" size={29} color={toggledHeart[preview.id] ? 'red' : '#16A34A'}  />
+                      <Icon source="heart" size={29} color={'red'}  />
                       </TouchableOpacity>
                       <TouchableOpacity onPress={showDialog} >
                       <Icon source="information" size={29} color={'#16A34A'} />
