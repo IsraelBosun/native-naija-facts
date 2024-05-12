@@ -13,7 +13,9 @@ import { useEffect } from 'react'
 import { Modal, Portal, PaperProvider, Appbar, Dialog, useTheme, Avatar, Card, Icon, ActivityIndicator, IconButton } from 'react-native-paper';
 import ExternalLink from '../components/Linking'
 import { useSelector, useDispatch } from 'react-redux';
-import { addLikedFact, removeLikedFact, toggleLikedFact } from '.././components/redux/actions'
+import { addLikedFact, removeLikedFact, loadLikedFacts } from '.././components/redux/actions'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ALERT_TYPE, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
 
 
 
@@ -23,18 +25,19 @@ import { addLikedFact, removeLikedFact, toggleLikedFact } from '.././components/
 
 
 
-export default function FactPreview({ route }) {
+export default function FactPreview({  }) {
   const router = useRouter()
   const [gettingFact, setGettingFact] = useState([]);
   const [loading, setLoading] = useState(true)
   const [toggledHeart, setToggledHeart] = useState({});
   const [visible, setVisible] = React.useState(false);
 
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
-
   const { params: item } = useRoute()
-  // console.log(Li, 'itemmmm')
+  // console.log(item, 'itemmmm')
+  // console.log(item.image)
+
+  
+
 
   const onShare = async (preview) => {
     try {
@@ -69,7 +72,7 @@ export default function FactPreview({ route }) {
   const showDialog = () => setVisible(true);
 
   const likedFacts = useSelector(state => state.fact.likedFacts);
-  console.log('FactPreview', likedFacts, 'FactPreview')
+  // console.log('FactPreview', likedFacts, 'FactPreview')
   const dispatch = useDispatch();
   const theme = useTheme();
 
@@ -80,42 +83,59 @@ export default function FactPreview({ route }) {
     }));
   };
 
-  // const handleLike = (fact) => {
-  //   if (toggledHeart[fact.id]) {
-  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
-  //     dispatch(toggleLikedFact(fact.id));
-  //   } else {
-  //     dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
-  //   }
-  //   toggleHeart(fact.id);
-  // };
+  //start
+  useEffect(() => {
+    const loadLikes = async () => {
+      try {
+        const storedLikes = await AsyncStorage.getItem('likedFacts');
+        if (storedLikes !== null) {
+          dispatch(loadLikedFacts(JSON.parse(storedLikes)));
+        }
+      } catch (error) {
+        console.error('Error loading liked facts:', error);
+      }
+    };
+  
+    loadLikes();
+  }, []);
+
+  useEffect(() => {
+    const storeLikes = async () => {
+      try {
+        await AsyncStorage.setItem('likedFacts', JSON.stringify(likedFacts));
+      } catch (error) {
+        console.error('Error storing liked facts:', error);
+      }
+    };
+  
+    storeLikes();
+  }, [likedFacts]);
+
+  //end
 
   const handleLike = (fact) => {
     if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
-      // If the fact is already liked, show an alert
-      Alert.alert('Already Liked', 'This fact is already liked.');
+      // If the fact is already liked, remove it from likedFacts
+      dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        textBody: 'Removed from favorites',
+        style: { backgroundColor: 'rgba(0, 10, 20, 0.6)', padding: 15 } 
+      });
     } else {
-      // If the fact is not already liked, dispatch the action to add it to the liked facts
-      dispatch(addLikedFact(fact));
-      dispatch(toggleLikedFact(fact.id));
-      toggleHeart(fact.id);
+      // If the fact is not already liked, add it to likedFacts
+      dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+      Toast.show({
+        type: ALERT_TYPE.SUCCESS,
+        textBody: 'Added to favorites',
+        style: { backgroundColor: 'rgba(0, 20, 10, 0.6)', padding: 15 } 
+      });
     }
+    // Always toggle the heart icon after handling like
+    toggleHeart(fact.id);
   };
 
-  // const handleLike = (fact) => {
-  //   if (toggledHeart[fact.id]) {
-  //     if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
-  //       Alert.alert("Fact already added to favorites.");
-  //     } else {
-  //       dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
-  //     }
-  //     toggleHeart(fact.id);
-  //   } else {
-  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
-  //     toggleHeart(fact.id);
-  //   }
-  // };
-  
+
   useEffect(() => {
     getOnlyFacts().then(data => {
       setGettingFact(data)
@@ -124,14 +144,14 @@ export default function FactPreview({ route }) {
   }, []);
 
   return (
-    <PaperProvider className='flex-1 bg-white'>
-        <Appbar.Header style={{ backgroundColor: theme.colors.secondary }}>
+    <AlertNotificationRoot className='flex-1 bg-white '>
+        <Appbar.Header className='z-20' style={{ backgroundColor: theme.colors.secondary }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content style={{ fontWeight: 'bold' }} title={item.name}/>
       </Appbar.Header>
       <View className='mx-4 mt-2 '>
         <ScrollView
-          contentContainerStyle={{ paddingVertical: 30 }}
+          contentContainerStyle={{ paddingVertical: 30, paddingBottom:  60 }}
           showsVerticalScrollIndicator={false}
           className='flex gap-6 mb-20'>
 
@@ -157,7 +177,7 @@ export default function FactPreview({ route }) {
                     <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3'>
                       <Text className='text-md text-green-600 font-semibold'>Share</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
+                    <TouchableOpacity onPress={()=> router.push({pathname: "/FactDetails", params: { ...preview, image: preview.image.asset._ref } })} className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
                       <Text className='text-md text-white font-semibold'>Read more</Text>
                     </TouchableOpacity>
                   </View>
@@ -166,7 +186,7 @@ export default function FactPreview({ route }) {
         </ScrollView>
       </View>
 
-    </PaperProvider>
+    </AlertNotificationRoot>
   )
 }
 

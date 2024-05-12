@@ -1,6 +1,6 @@
 // store.js
 import { legacy_createStore as createStore, combineReducers, applyMiddleware } from 'redux';
-import { asyncStorageMiddleware } from './middleware';
+// import { asyncStorageMiddleware } from './middleware';
 import reducer from './reducers'; // Assuming your reducer file is named reducers.js
 
 // Combine reducers if you have multiple reducers
@@ -10,6 +10,6 @@ const rootReducer = combineReducers({
 });
 
 // Create the Redux store
-const store = createStore(rootReducer, applyMiddleware(asyncStorageMiddleware));
+const store = createStore(rootReducer, );
 
 export default store;

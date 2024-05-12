@@ -69,6 +69,7 @@ function RootLayoutNav() {
         {/* <Stack.Screen name="modal" options={{ presentation: 'modal' }} /> */}
         {/* <Stack.Screen name="index" options={{ headerShown: false }} /> */}
         <Stack.Screen name="FactPreview" options={{ headerShown: false }} />
+        <Stack.Screen name="FactDetails" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
     </PaperProvider>

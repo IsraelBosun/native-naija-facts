@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, Image,  } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Image, Pressable  } from 'react-native'
 import React from 'react'
 import { categories } from "../constants/index"
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -40,7 +40,7 @@ export default function Categories() {
             numColumns={2}
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 400, paddingTop: 5, paddingHorizontal: 0 }}
+            contentContainerStyle={{ paddingBottom: 300, paddingTop: 5, paddingHorizontal: 0 }}
             columnWrapperStyle={{ justifyContent: 'space-between' }}
             renderItem={({ item, index }) => <CategoryCard index={index} item={item} router={router} navigation={navigation} theme={theme} />}
           />
@@ -55,15 +55,15 @@ const CategoryCard = ({item, index, router, navigation, theme}) => {
   // console.log(item, 'preview')
     return (
       <View className='mx-2 ' >
-        <TouchableOpacity className=' mt-4 w-[160px] rounded-sm ' onPress={() => navigation.push('FactPreview', item,)} >
+        <Pressable className=' mt-4 w-[160px] rounded-sm ' onPress={() => navigation.push('FactPreview', item,)} >
           <View className=''  >
             <Image className='h-[150px] ' resizeMethod='auto' source={{ uri: urlFor(item.image).url() }} />
           </View >
           {/* <Card.Title title = "Category" subtitle='card subtitle'  /> */}
-          <View className = 'h-10 rounded-b-md flex items-center justify-center' style={{ backgroundColor: theme.colors.primary }}>
+          <TouchableOpacity className = 'h-10 rounded-b-md flex items-center justify-center' style={{ backgroundColor: theme.colors.primary }}>
             <Text className=' mt-1 text-white font-semibold text-md'>{item.name}</Text>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </Pressable>
       </View>
 )
 }

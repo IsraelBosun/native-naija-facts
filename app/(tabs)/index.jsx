@@ -15,18 +15,17 @@ export default function index() {
   return (
     <View className=''>
       <Appbar.Header style={{ backgroundColor: theme.colors.secondary }}>
-        <Appbar.BackAction onPress={() => { }} />
-        <Appbar.Content title="Home" />
+        <Appbar.Content className='ml-6 text-lg' title="Home" />
         {/* <Appbar.Action icon="calendar" onPress={() => { }} />
         <Appbar.Action icon="magnify" onPress={() => { }} /> */}
       </Appbar.Header>
       <View className=' mb-2 shadow-md'>
-      <View className='mt-3  mx-3 mr-3 w-[90%] border border-green-600 relative left-7 p-1 flex-row items-center gap-x-2 rounded-2xl bg-neutral-200 '>
+      {/* <View className='mt-3  mx-3 mr-3 w-[90%] border border-green-600 relative left-7 p-1 flex-row items-center gap-x-2 rounded-2xl bg-neutral-200 '>
         <TouchableOpacity>
           <Icon name="search" size={20} color="#16A34A" />
         </TouchableOpacity>
         <TextInput placeholder='Search Categories' className='w-4/5 text-md ' />
-      </View>
+      </View> */}
       </View>
       <Categories />
     </View> 

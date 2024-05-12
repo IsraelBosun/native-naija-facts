@@ -15,7 +15,7 @@ import { addLikedFact, removeLikedFact, toggleLikedFact, loadLikedFacts } from '
 import { connect } from 'react-redux'
 import { useSelector, useDispatch } from 'react-redux';
 import { ALERT_TYPE, AlertNotificationRoot, Toast } from 'react-native-alert-notification';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -32,9 +32,27 @@ function Shuffled({}) {
 
 
   const likedFacts = useSelector(state => state.fact.likedFacts);
+  console.log(setGettingFact)
   console.log('Shuffled', likedFacts.length, 'Shuffled')
   const dispatch = useDispatch();
   const theme = useTheme();
+
+
+  async function clearAsyncStorage() {
+    try {
+      await AsyncStorage.clear();
+      console.log('AsyncStorage cleared successfully');
+    } catch (error) {
+      console.error('Error clearing AsyncStorage: ', error);
+    }
+  }
+
+  useEffect(() => {
+    getOnlyFacts().then(data => {
+      setGettingFact(data)
+    })
+    .finally(() => setLoading(false))
+  }, []);
 
 
   const toggleHeart = (id) => {
@@ -44,18 +62,23 @@ function Shuffled({}) {
     }));
   };
 
-
-
-
-
-  // const handleLike = (fact) => {
-  //   if (toggledHeart[fact.id]) {
-  //     dispatch(removeLikedFact(fact.id)); // Dispatch removeLikedFact when unliking
-  //   } else {
-  //     dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
+  // const toggleHeart = async (id) => {
+  //   setToggledHeart(prevState => ({
+  //     ...prevState,
+  //     [id]: !prevState[id], 
+  //   }));
+  
+  //   try {
+  //     const storedLikes = await AsyncStorage.getItem('likedFacts');
+  //     let likedFacts = storedLikes ? JSON.parse(storedLikes) : {};
+  //     likedFacts[id] = !likedFacts[id] ? 'red' : null; // Set the color based on the toggle
+  //     await AsyncStorage.setItem('likedFacts', JSON.stringify(likedFacts));
+  //   } catch (error) {
+  //     console.error('Error storing liked facts:', error);
   //   }
-  //   toggleHeart(fact.id);
   // };
+  
+
   
   const handleLike = (fact) => {
     if (likedFacts.some(likedFact => likedFact.id === fact.id)) {
@@ -69,7 +92,6 @@ function Shuffled({}) {
     } else {
       // If the fact is not already liked, add it to likedFacts
       dispatch(addLikedFact(fact)); // Dispatch addLikedFact when liking
-      // dispatch(toggleLikedFact(fact.id)); // Toggle liked status
       Toast.show({
         type: ALERT_TYPE.SUCCESS,
         textBody: 'Added to favorites',
@@ -82,12 +104,8 @@ function Shuffled({}) {
 
 
 
-  useEffect(() => {
-    getOnlyFacts().then(data => {
-      setGettingFact(data)
-    })
-    .finally(() => setLoading(false))
-  }, []);
+  
+
 
   const hideDialog = () => setVisible(false);
   const showDialog = () => setVisible(true);
@@ -95,6 +113,40 @@ function Shuffled({}) {
   const handleLinkPress = (url) => {
     Linking.openURL(url);
   };
+  
+//start
+  useEffect(() => {
+    const loadLikes = async () => {
+      try {
+        const storedLikes = await AsyncStorage.getItem('likedFacts');
+        if (storedLikes !== null) {
+          dispatch(loadLikedFacts(JSON.parse(storedLikes)));
+        }
+      } catch (error) {
+        console.error('Error loading liked facts:', error);
+      }
+    };
+  
+    loadLikes();
+  }, []);
+
+
+
+
+  
+  useEffect(() => {
+    const storeLikes = async () => {
+      try {
+        await AsyncStorage.setItem('likedFacts', JSON.stringify(likedFacts));
+      } catch (error) {
+        console.error('Error storing liked facts:', error);
+      }
+    };
+  
+    storeLikes();
+  }, [likedFacts]);
+
+  //end
 
   const onShare = async (preview) => {
     try {
@@ -125,7 +177,7 @@ function Shuffled({}) {
             </Appbar.Header>
             <View className='mx-4 mt-2 '>
               <ScrollView
-                contentContainerStyle={{ paddingVertical: 30 }}
+                contentContainerStyle={{ paddingVertical: 30, paddingBottom:  60 }}
                 showsVerticalScrollIndicator={false}
                 className='flex gap-6 mb-20'>
                 {gettingFact.map((preview) => (
@@ -142,21 +194,21 @@ function Shuffled({}) {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <View className='px-3 mt-2'>
+                    <View  className='px-3 mt-2'>
                       <Text className='leading-5 text-neutral-700' variant='bodyMedium'>{preview.shortDetail}</Text>
                     </View>
                     <View className='flex-row items-center justify-end gap-3 px-3 mt-2'>
                       <TouchableOpacity onPress={() => onShare(preview)} className='rounded-3xl border border-green-600 px-5 py-3'>
                         <Text className='text-md text-green-600 font-semibold'>Share</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
+                      <TouchableOpacity onPress={()=> router.push({pathname: "/FactDetails", params: { ...preview, image: preview.image.asset._ref } })} className='rounded-3xl border border-green-600 px-5 py-3 bg-green-600'>
                         <Text className='text-md text-white font-semibold'>Read more</Text>
                       </TouchableOpacity>
                     </View>
                   </Card>
                 ))}
                 <Portal>
-                  <Dialog visible={visible} onDismiss={hideDialog}>
+                  {/* <Dialog visible={visible} onDismiss={hideDialog}>
                     <Dialog.Content className='flex gap-3'>
                       <TouchableOpacity onPress={() => handleLinkPress(preview.url1)}>
                         <Text >This is the first link</Text>
@@ -166,7 +218,7 @@ function Shuffled({}) {
                         <Text >This is the second link</Text>
                       </TouchableOpacity>
                     </Dialog.Content>
-                  </Dialog>
+                  </Dialog> */}
                 </Portal>
               </ScrollView>
             </View>
